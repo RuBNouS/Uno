@@ -1,143 +1,82 @@
-﻿using System;
-using System.Linq;
-using System.Windows.Input;
-using Uno.Models;
-using Uno.Services;
-using Uno.Commands;
+﻿using System.Linq;
+using UnoDesktopGame.Models;
+using UnoDesktopGame.Services;
+using UnoDesktopGame.ViewModels.Base;
 
-namespace Uno.ViewModels
+namespace UnoDesktopGame.ViewModels
 {
-    public class MainViewModel : ObservableObject
+    public class MainViewModel : ViewModelBase
     {
-        private Jogo _jogoAtual;
-        public Jogo JogoAtual
+        // Esta propriedade diz à MainWindow qual é a View que deve ser mostrada no ecrã
+        private ViewModelBase _currentViewModel;
+        public ViewModelBase CurrentViewModel
         {
-            get => _jogoAtual;
-            set => SetProperty(ref _jogoAtual, value);
+            get => _currentViewModel;
+            set { _currentViewModel = value; OnPropertyChanged(); }
         }
 
-        // Comandos que a Interface Gráfica (View) vai invocar
-        public ICommand IniciarPartidaCommand { get; }
-        public ICommand JogarCartaCommand { get; }
+        private readonly XmlDataService _dataService;
 
         public MainViewModel()
         {
-            _jogoAtual = new Jogo();
-            IniciarPartidaCommand = new RelayCommand(IniciarPartida);
-
-            JogarCartaCommand = new RelayCommand(JogarCarta);
+            _dataService = new XmlDataService();
+            // Assim que a aplicação arranca, mandamos o utilizador para o Lobby
+            NavegarParaLobby();
         }
 
-        private void IniciarPartida(object? parameter)
+        // --- MÉTODOS DE NAVEGAÇÃO ---
+
+        public void NavegarParaLobby()
         {
-            // --- NOVIDADE: Usar o Gestor de Dados ---
-            var gestorDados = new GestorDadosService();
-            var perfisGuardados = gestorDados.CarregarPerfis();
+            CurrentViewModel = new LobbyViewModel(this, _dataService);
+        }
 
-            JogoAtual.Jogadores.Clear();
-            string nomeHumano = Environment.UserName;
+        public void NavegarParaTabuleiro(Jogo jogo)
+        {
+            CurrentViewModel = new TabuleiroViewModel(jogo, _dataService, this);
+        }
 
-            // Tenta encontrar o Humano no XML, se não encontrar, cria um novo
-            var humano = perfisGuardados.FirstOrDefault(p => p.Nome == nomeHumano)
-                         ?? new Jogador { Nome = nomeHumano, IsBot = false };
+        public void NavegarParaResultados(Jogo jogoTerminado)
+        {
+            CurrentViewModel = new ResultadosViewModel(jogoTerminado, _dataService, this);
+        }
 
-            // Tenta encontrar os Bots no XML, se não encontrar, cria-os
-            var bot1 = perfisGuardados.FirstOrDefault(p => p.Nome == "Bot Alpha") ?? new Jogador { Nome = "Bot Alpha", IsBot = true };
-            var bot2 = perfisGuardados.FirstOrDefault(p => p.Nome == "Bot Beta") ?? new Jogador { Nome = "Bot Beta", IsBot = true };
-            var bot3 = perfisGuardados.FirstOrDefault(p => p.Nome == "Bot Gamma") ?? new Jogador { Nome = "Bot Gamma", IsBot = true };
+        // --- LÓGICA DE CRIAÇÃO DO JOGO ---
 
-            JogoAtual.Jogadores.Add(humano);
-            JogoAtual.Jogadores.Add(bot1);
-            JogoAtual.Jogadores.Add(bot2);
-            JogoAtual.Jogadores.Add(bot3);
+        public void IniciarNovoJogo(int numeroBots)
+        {
+            var novoJogo = new Jogo();
 
-            // Incrementa o número de partidas jogadas para todos e GUARDA logo no XML!
-            foreach (var j in JogoAtual.Jogadores)
+            // 1. Gera o baralho com as 108 cartas
+            novoJogo.Mesa.Baralho = BaralhoFactory.GerarBaralhoOficial();
+
+            // 2. Adiciona o jogador Humano
+            var humano = new Jogador(isBot: false);
+            novoJogo.Jogadores.Add(humano);
+
+            // 3. Adiciona os Bots escolhidos
+            for (int i = 1; i <= numeroBots; i++)
             {
-                j.N_Partidas_Jogadas++;
+                novoJogo.Jogadores.Add(new Jogador(isBot: true, nomeBot: $"Bot {i}"));
             }
-            gestorDados.GuardarPerfis(JogoAtual.Jogadores);
-            // ----------------------------------------
 
-            // 2. Gerar e baralhar o baralho oficial
-            var baralhoService = new BaralhoService();
-            JogoAtual.Mesa.Baralho = baralhoService.CriarBaralhoCompleto();
-            JogoAtual.Mesa.CartasJogadas.Clear();
-
-            // 3. Distribuir 7 cartas a cada jogador
-            foreach (var jogador in JogoAtual.Jogadores)
+            // 4. Distribui 7 cartas a cada jogador
+            foreach (var jogador in novoJogo.Jogadores)
             {
-                jogador.Cartas.Clear();
                 for (int i = 0; i < 7; i++)
                 {
-                    jogador.Cartas.Add(JogoAtual.Mesa.Baralho.Cartas.Pop());
+                    jogador.Cartas.Add(novoJogo.Mesa.Baralho.Cartas[0]);
+                    novoJogo.Mesa.Baralho.Cartas.RemoveAt(0);
                 }
             }
 
-            // 4. Virar a primeira carta para a mesa
-            Carta primeiraCarta = JogoAtual.Mesa.Baralho.Cartas.Pop();
-            JogoAtual.Mesa.CartasJogadas.Add(primeiraCarta);
+            // 5. Coloca a primeira carta na mesa (garantindo que não é uma carta preta/Wild para não complicar o início)
+            var primeiraCarta = novoJogo.Mesa.Baralho.Cartas.First(c => c.Cor != "Preto");
+            novoJogo.Mesa.Baralho.Cartas.Remove(primeiraCarta);
+            novoJogo.Mesa.CartasJogadas.Add(primeiraCarta);
 
-            // 5. Definir quem começa a jogar
-            JogoAtual.JogadorAtivo = humano;
-
-            // Forçar a UI a atualizar
-            OnPropertyChanged(nameof(JogoAtual));
-        }
-        private void JogarCarta(object? parameter)
-        {
-            // O parameter é a Carta que clicámos na interface
-            if (parameter is Carta cartaClicada)
-            {
-                // 1. Verifica se é a vez do humano jogar
-                if (JogoAtual.JogadorAtivo == null || JogoAtual.JogadorAtivo.IsBot)
-                    return; // Ignora o clique se não for a tua vez
-
-                // 2. Obtém a carta que está visível no topo da mesa
-                Carta cartaTopo = JogoAtual.Mesa.CartasJogadas[0];
-
-                // 3. Validação das Regras do UNO: Mesma Cor, Mesmo Símbolo, ou Carta Preta (Curinga)
-                bool jogadaValida = cartaClicada.Cor == cartaTopo.Cor ||
-                                    cartaClicada.Simbolo == cartaTopo.Simbolo ||
-                                    cartaClicada.Cor == CorCarta.Preto;
-
-                if (jogadaValida)
-                {
-                    // Remove a carta da mão do jogador
-                    JogoAtual.JogadorAtivo.Cartas.Remove(cartaClicada);
-
-                    // Insere a carta no índice 0 (topo) da pilha de descartes da mesa
-                    JogoAtual.Mesa.CartasJogadas.Insert(0, cartaClicada);
-
-                    // Avança para o próximo jogador
-                    AvancarTurno();
-                }
-            }
-        }
-        private void AvancarTurno()
-        {
-            // Descobre o índice do jogador atual na lista
-            int indexAtual = JogoAtual.Jogadores.IndexOf(JogoAtual.JogadorAtivo!);
-            int proximoIndex;
-
-            // Calcula quem é o próximo baseado no sentido do jogo
-            if (JogoAtual.SentidoHorario)
-            {
-                proximoIndex = (indexAtual + 1) % JogoAtual.Jogadores.Count;
-            }
-            else
-            {
-                proximoIndex = (indexAtual - 1 + JogoAtual.Jogadores.Count) % JogoAtual.Jogadores.Count;
-            }
-
-            // Define o novo jogador ativo
-            JogoAtual.JogadorAtivo = JogoAtual.Jogadores[proximoIndex];
-
-            // Força a UI a perceber que o jogador ativo mudou
-            OnPropertyChanged(nameof(JogoAtual));
-
-            // NOTA DE SÉNIOR: Mais tarde, se o JogoAtual.JogadorAtivo.IsBot for true, 
-            // vamos disparar aqui o timer de 2 segundos para o Bot jogar!
+            // 6. Arranca para o ecrã do jogo!
+            NavegarParaTabuleiro(novoJogo);
         }
     }
 }
