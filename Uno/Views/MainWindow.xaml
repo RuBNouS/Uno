@@ -1,0 +1,24 @@
+﻿<Window x:Class="UnoDesktopGame.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodels="clr-namespace:UnoDesktopGame.ViewModels"
+        xmlns:views="clr-namespace:UnoDesktopGame.Views"
+        mc:Ignorable="d"
+        Title="UNO Desktop" Height="720" Width="1080" WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type viewmodels:LobbyViewModel}">
+            <views:LobbyView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:TabuleiroViewModel}">
+            <views:TabuleiroView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:ResultadosViewModel}">
+            <views:ResultadosView/>
+        </DataTemplate>
+    </Window.Resources>
+
+    <ContentControl Content="{Binding CurrentViewModel}" />
+</Window>
