@@ -7,7 +7,7 @@
         <Border Background="White" Width="450" VerticalAlignment="Center" HorizontalAlignment="Center" 
                 CornerRadius="15" Padding="30" Margin="20">
             <Border.Effect>
-                <DropShadowEffect Color="Black" Opacity="0.1" BlurRadius="20" ShadowDepth="4"/>
+                <DropShadowEffect Color="Black" Opacity="0.5" BlurRadius="20" ShadowDepth="5"/>
             </Border.Effect>
 
             <StackPanel>
