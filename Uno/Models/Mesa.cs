@@ -1,10 +1,18 @@
-﻿using System.Collections.ObjectModel;
-using Uno.Models;
+﻿using System;
+using System.Collections.Generic;
 
-namespace Uno.Models
+namespace UnoDesktopGame.Models
 {
-    public class Mesa : ObservableObject
+    [Serializable]
+    public class Mesa
     {
-        // (Corta e cola aqui todo o código que está dentro da classe Mesa do teu bloco)
+        public List<Carta> CartasJogadas { get; set; }
+        public Baralho Baralho { get; set; }
+
+        public Mesa()
+        {
+            CartasJogadas = new List<Carta>();
+            Baralho = new Baralho();
+        }
     }
 }

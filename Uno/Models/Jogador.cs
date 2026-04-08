@@ -1,57 +1,46 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Xml.Serialization;
 
-namespace Uno.Models
+namespace UnoDesktopGame.Models
 {
-    public class Jogador : ObservableObject
+    [Serializable]
+    public class Jogador
     {
-        private string _nome = string.Empty;
-        public string Nome
+        public string Nome { get; set; }
+        public string Fotografia { get; set; }
+
+        [XmlIgnore] // Ignorado na serialização para evitar redundância, guardamos apenas o estado global do jogo
+        public ObservableCollection<Carta> Cartas { get; set; }
+
+        // Propriedade auxiliar para o serializador XML conseguir gravar a lista de cartas
+        [XmlArray("CartasMao")]
+        public Carta[] CartasSerializaveis
         {
-            get => _nome;
-            set => SetProperty(ref _nome, value);
+            get { return Cartas != null ? new List<Carta>(Cartas).ToArray() : new Carta[0]; }
+            set { Cartas = new ObservableCollection<Carta>(value); }
         }
 
-        private string? _fotografiaPath;
-        public string? Fotografia
-        {
-            get => _fotografiaPath;
-            set => SetProperty(ref _fotografiaPath, value);
-        }
-
-        private int _nPartidasJogadas;
-        public int N_Partidas_Jogadas
-        {
-            get => _nPartidasJogadas;
-            set => SetProperty(ref _nPartidasJogadas, value);
-        }
-
-        private int _nPartidasGanhos;
-        public int N_Partidas_Ganhos
-        {
-            get => _nPartidasGanhos;
-            set => SetProperty(ref _nPartidasGanhos, value);
-        }
-
-        private int _nJogosJogados;
-        public int N_Jogos_Jogados
-        {
-            get => _nJogosJogados;
-            set => SetProperty(ref _nJogosJogados, value);
-        }
-
-        private int _nJogosGanhos;
-        public int N_Jogos_Ganhos
-        {
-            get => _nJogosGanhos;
-            set => SetProperty(ref _nJogosGanhos, value);
-        }
-
-        // O XmlIgnore diz ao serializador para não tentar guardar a mão de cartas no perfil
-        [XmlIgnore]
-        public ObservableCollection<Carta> Cartas { get; } = new ObservableCollection<Carta>();
-
-        // Mantemos um set público para o XML conseguir recriar este valor ao carregar
+        public int N_Partidas_Jogadas { get; set; }
+        public int N_Partidas_Ganhos { get; set; }
+        public int N_Jogos_Jogados { get; set; }
+        public int N_Jogos_Ganhos { get; set; }
         public bool IsBot { get; set; }
+
+        public Jogador()
+        {
+            Cartas = new ObservableCollection<Carta>();
+        }
+
+        public Jogador(bool isBot, string nomeBot = "")
+        {
+            IsBot = isBot;
+            Nome = isBot ? nomeBot : Environment.UserName; // Nome automático via Windows Profile para Humano [cite: 147]
+            Cartas = new ObservableCollection<Carta>();
+            N_Partidas_Jogadas = 0;
+            N_Partidas_Ganhos = 0;
+            N_Jogos_Jogados = 0;
+            N_Jogos_Ganhos = 0;
+        }
     }
 }

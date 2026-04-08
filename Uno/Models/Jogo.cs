@@ -1,44 +1,45 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
 
-namespace Uno.Models
+namespace UnoDesktopGame.Models
 {
-    public class Jogo : ObservableObject
+    [Serializable]
+    public class Jogo
     {
-        // Lista de todos os jogadores (Humano + Bots)
-        public ObservableCollection<Jogador> Jogadores { get; } = new ObservableCollection<Jogador>();
+        public List<Jogador> Jogadores { get; set; }
 
-        // Dicionário para as pontuações da partida
-        private Dictionary<Jogador, int> _pontuacoes = new Dictionary<Jogador, int>();
-        public Dictionary<Jogador, int> Pontuacoes
+        // Dictionary não é serializável nativamente em XML, usamos duas listas sincronizadas para serialização
+        public List<string> PontuacoesKeys { get; set; }
+        public List<int> PontuacoesValues { get; set; }
+
+        public Jogador JogadorAtivo { get; set; }
+        public Mesa Mesa { get; set; }
+
+        public Jogo()
         {
-            get => _pontuacoes;
-            set => SetProperty(ref _pontuacoes, value);
+            Jogadores = new List<Jogador>();
+            PontuacoesKeys = new List<string>();
+            PontuacoesValues = new List<int>();
+            Mesa = new Mesa();
         }
 
-        // Quem é o jogador que tem de jogar agora
-        private Jogador? _jogadorAtivo;
-        public Jogador? JogadorAtivo
+        // Métodos auxiliares para gerir as pontuações em memória
+        public void SetPontuacao(string nomeJogador, int pontos)
         {
-            get => _jogadorAtivo;
-            set => SetProperty(ref _jogadorAtivo, value);
+            int index = PontuacoesKeys.IndexOf(nomeJogador);
+            if (index >= 0)
+                PontuacoesValues[index] = pontos;
+            else
+            {
+                PontuacoesKeys.Add(nomeJogador);
+                PontuacoesValues.Add(pontos);
+            }
         }
 
-        // A Mesa que contém o baralho e as cartas já jogadas
-        private Mesa _mesa = new Mesa();
-        public Mesa Mesa
+        public int GetPontuacao(string nomeJogador)
         {
-            get => _mesa;
-            set => SetProperty(ref _mesa, value);
-        }
-
-        // --- A PROPRIEDADE QUE ESTAVA EM FALTA ---
-        // True = Ordem da lista (0, 1, 2...). False = Ordem inversa.
-        private bool _sentidoHorario = true;
-        public bool SentidoHorario
-        {
-            get => _sentidoHorario;
-            set => SetProperty(ref _sentidoHorario, value);
+            int index = PontuacoesKeys.IndexOf(nomeJogador);
+            return index >= 0 ? PontuacoesValues[index] : 0;
         }
     }
 }

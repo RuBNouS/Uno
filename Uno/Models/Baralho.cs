@@ -1,22 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
-namespace Uno.Models
+namespace UnoDesktopGame.Models
 {
-    public class Baralho : ObservableObject
+    [Serializable]
+    public class Baralho
     {
-        private Stack<Carta> _cartas = new Stack<Carta>();
+        public List<Carta> Cartas { get; set; }
 
-        // Esta é a propriedade "Cartas" que o BaralhoService está a tentar aceder!
-        public Stack<Carta> Cartas
+        public Baralho()
         {
-            get => _cartas;
-            set
-            {
-                SetProperty(ref _cartas, value);
-                OnPropertyChanged(nameof(NumeroCartasRestantes));
-            }
+            Cartas = new List<Carta>();
         }
-
-        public int NumeroCartasRestantes => _cartas.Count;
     }
 }

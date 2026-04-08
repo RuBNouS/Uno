@@ -1,13 +1,13 @@
 ﻿using System;
-using Uno.Models;
 
-namespace Uno.Models
+namespace UnoDesktopGame.Models
 {
-    public class Carta : ObservableObject
+    [Serializable]
+    public class Carta
     {
-        public Guid Id { get; } = Guid.NewGuid();
-        public SimboloCarta Simbolo { get; init; }
-        public CorCarta Cor { get; init; }
-        public int Pontos { get; init; }
+        public int Id { get; set; }
+        public string Simbolo { get; set; } // Ex: "0", "9", "Inverter", "+2", "Wild"
+        public string Cor { get; set; }     // Ex: "Vermelho", "Azul", "Verde", "Amarelo", "Preto" (para Wild)
+        public int Pontos { get; set; }
     }
 }
