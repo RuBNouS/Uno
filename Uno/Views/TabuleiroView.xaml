@@ -1,7 +1,7 @@
 <UserControl x:Class="Uno.Views.TabuleiroView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Background="#FAFAFA">
+             Background="white">
     <Grid Margin="20">
         <Grid.Resources>
             <Style x:Key="EstiloCartaMagica" TargetType="Button">
@@ -26,10 +26,10 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsEnabled" Value="True">
-                                    <Setter TargetName="MolduraCarta" Property="BorderBrush" Value="#FFD700"/>
+                                    <Setter TargetName="MolduraCarta" Property="BorderBrush" Value="yellow"/>
                                     <Setter TargetName="MolduraCarta" Property="Effect">
                                         <Setter.Value>
-                                            <DropShadowEffect Color="#FFD700" BlurRadius="15" ShadowDepth="0" Opacity="1"/>
+                                            <DropShadowEffect Color="yellow" BlurRadius="15" ShadowDepth="0" Opacity="1"/>
                                         </Setter.Value>
                                     </Setter>
                                 </Trigger>
@@ -60,20 +60,20 @@
                     <StackPanel Visibility="{Binding IsBot, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="20,0">
                         <Ellipse Width="50" Height="50" Fill="#A8DADC" HorizontalAlignment="Center"/>
                         <TextBlock Text="{Binding Nome}" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,5,0,0"/>
-                        <TextBlock Text="{Binding Cartas.Count, StringFormat='{}{0} cartas'}" HorizontalAlignment="Center" Foreground="Gray"/>
+                        <TextBlock Text="{Binding Cartas.Count, StringFormat='{}{0} cartas'}" HorizontalAlignment="Center" Foreground="black"/>
                     </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <Border Background="#E9F5E9" CornerRadius="15" Padding="10,5" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="0">
-            <TextBlock Text="{Binding MensagemTurno}" Foreground="#2A9D8F" FontWeight="Bold" FontSize="14"/>
+        <Border Background="white" CornerRadius="15" Padding="10,5" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="0">
+            <TextBlock Text="{Binding MensagemTurno}" Foreground="black" FontWeight="Bold" FontSize="14"/>
         </Border>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20">
             <Button Command="{Binding ComprarCartaCommand}" Background="White" Width="80" Height="120" Margin="10">
                 <StackPanel>
-                    <Border Background="#E63946" Width="60" Height="90" CornerRadius="5"/>
+                    <Border Background="red" Width="60" Height="90" CornerRadius="5"/>
                     <TextBlock Text="Baralho" FontSize="10" HorizontalAlignment="Center" Margin="0,5,0,0"/>
                 </StackPanel>
             </Button>
@@ -107,8 +107,8 @@
                 </ItemsControl>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Margin="20,0,0,0">
-                    <Button Content="Gritar UNO!" Command="{Binding GritarUnoCommand}" Background="#E63946" Foreground="White" Width="100" Height="40" Margin="0,0,0,10" Style="{StaticResource RoundedButtonStyle}"/>
-                    <Button Content="Suspender" Command="{Binding SuspenderPartidaCommand}" Background="#457B9D" Foreground="White" Width="100" Height="40" Style="{StaticResource RoundedButtonStyle}"/>
+                    <Button Content="Gritar UNO!" Command="{Binding GritarUnoCommand}" Background="red" Foreground="White" Width="100" Height="40" Margin="0,0,0,10" Style="{StaticResource RoundedButtonStyle}"/>
+                    <Button Content="Suspender" Command="{Binding SuspenderPartidaCommand}" Background="black" Foreground="White" Width="100" Height="40" Style="{StaticResource RoundedButtonStyle}"/>
                 </StackPanel>
             </Grid>
         </StackPanel>
