@@ -58,7 +58,7 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Visibility="{Binding IsBot, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="20,0">
-                        <Ellipse Width="50" Height="50" Fill="#A8DADC" HorizontalAlignment="Center"/>
+                        <Ellipse Width="50" Height="50" Fill="white" HorizontalAlignment="Center"/>
                         <TextBlock Text="{Binding Nome}" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,5,0,0"/>
                         <TextBlock Text="{Binding Cartas.Count, StringFormat='{}{0} cartas'}" HorizontalAlignment="Center" Foreground="black"/>
                     </StackPanel>
