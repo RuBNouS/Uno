@@ -44,5 +44,10 @@ namespace Uno.Views
             DialogResult = false;
             Close();
         }
+
+        private void TxtNomeSave_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+
+        }
     }
 }
