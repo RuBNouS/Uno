@@ -101,7 +101,20 @@
                         <DataTemplate>
                             <Button Command="{Binding DataContext.JogarCartaCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                     CommandParameter="{Binding}" 
-                                    Style="{StaticResource EstiloCartaMagica}"/>
+                                    Width="70" Height="100" Margin="5"
+                                    Cursor="Hand">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{Binding Cor, Converter={StaticResource StringToColorConverter}}" 
+                                                CornerRadius="8" 
+                                                BorderBrush="#333333" 
+                                                BorderThickness="1">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                                <TextBlock Text="{Binding Simbolo}" Foreground="White" FontSize="24" FontWeight="Bold"/>
+                            </Button>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

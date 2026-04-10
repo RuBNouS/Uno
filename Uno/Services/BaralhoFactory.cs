@@ -17,7 +17,7 @@ namespace Uno.Services
             foreach (var cor in cores)
             {
                 // Um '0' por cor
-                baralho.Cartas.Add(new Carta { Id = idCounter++, Cor = cor, Simbolo = "0", Pontos = 0 });
+                baralho.Cartas.Add(new Carta { Cor = cor, Simbolo = "0", Pontos = 0 });
 
                 // Dois de cada número de 1 a 9
                 for (int i = 1; i <= 9; i++)
