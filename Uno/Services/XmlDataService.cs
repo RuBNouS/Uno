@@ -79,5 +79,18 @@ namespace Uno.Services
                 File.Delete(filePath);
             }
         }
-    }
+
+		public void RenameSave(string nomeAntigo, string novoNome)
+		{
+			string pastaSaves = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "UnoSaves"); 
+
+			string caminhoAntigo = Path.Combine(pastaSaves, nomeAntigo + ".xml");
+			string caminhoNovo = Path.Combine(pastaSaves, novoNome + ".xml");
+
+			if (File.Exists(caminhoAntigo) && !File.Exists(caminhoNovo))
+			{
+				File.Move(caminhoAntigo, caminhoNovo);
+			}
+		}
+	}
 }

@@ -89,26 +89,30 @@ namespace Uno.ViewModels
 		{
 			if (parametro is SaveItemViewModel saveItem)
 			{
-				saveItem.IsEditing = false;
-
 				string novoNome = saveItem.NomeSave?.Trim();
-
-				if (string.IsNullOrWhiteSpace(novoNome) || novoNome == saveItem.NomeOriginal)
+				if (novoNome == saveItem.NomeOriginal)
 				{
-					saveItem.NomeSave = saveItem.NomeOriginal;
+					MensagemErro = "";
+					saveItem.IsEditing = false;
 					return;
 				}
-
+				if (string.IsNullOrWhiteSpace(novoNome))
+				{
+					MensagemErro = "Erro: O nome não pode estar vazio.";
+					return;
+				}
 				bool nomeJaExiste = ListaSaves.Any(s => s != saveItem && s.NomeOriginal.Equals(novoNome, System.StringComparison.OrdinalIgnoreCase));
-
 				if (nomeJaExiste)
 				{
 					MensagemErro = "Erro: Já existe um jogo guardado com esse nome!";
-					saveItem.NomeSave = saveItem.NomeOriginal;
 					return;
 				}
+				MensagemErro = "";
+				_dataService.RenameSave(saveItem.NomeOriginal, novoNome);
+
 				saveItem.NomeSave = novoNome;
 				saveItem.NomeOriginal = saveItem.NomeSave;
+				saveItem.IsEditing = false;
 			}
 		}
 	}
